@@ -1,5 +1,45 @@
+const mockData = {
+  Search : [
+    {
+        "Title": "Movie Wars",
+        "ImdbID": "898978",
+        "Type": "test",
+        "Poster": "Urlol",
+        "Year": "2152"
+    },
+    {
+        "Title": "War of Movies",
+        "ImdbID": "898978",
+        "Type": "test",
+        "Poster": "Urlol",
+        "Year": "2222"
+    },
+    {
+        "Title": "Cinema Wars",
+        "ImdbID": "898978",
+        "Type": "test",
+        "Poster": "Urlol",
+        "Year": "2202"
+    }
+]
+};
+
+const failedMock = {
+  TrySearch : [
+    {
+      "Movie" : "Wars Movie",
+      "ID": "3124",
+      "Test": "Test",
+      "IMG" : "URLol",
+      "Date": "2321"
+    }
+  ]
+}
+
+
 beforeEach(()=> {
   cy.visit("/");
+
 });
 
 describe("testing movieSite", () => {
@@ -42,5 +82,31 @@ describe("testing movieSite", () => {
     cy.get("button").click();
     cy.wait("@movieCall").its("request.url").should("contain", "s=Star%20Wars");
   });
+
+  it("should use mockData", ()=>{
+
+    cy.intercept("GET", "http://omdbapi.com/?apikey=*", (mockData)).as("mockCall");
+
+    cy.get("input").type("ggggg")
+    cy.get("button").click();
+    cy.wait("@mockCall");
+
+    cy.get("#movie-container").contains("Movie Wars");
+
+  });
+
+  it("should get error?", ()=>{
+
+    cy.intercept("GET", "http://omdbapi.com/?apikey=*", (failedMock)).as("mockCall");
+
+    cy.get("input").type("ggggg")
+    cy.get("button").click();
+    cy.wait("@mockCall");
+
+    cy.get("#movie-container").contains("Inga sökresultat");
+
+  });
+
+
 
 })
